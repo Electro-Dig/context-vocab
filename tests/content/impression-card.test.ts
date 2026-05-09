@@ -9,6 +9,8 @@ function entry(): WordEntry {
     term: 'commitment',
     normalizedTerm: 'commitment',
     language: 'en',
+    partOfSpeech: 'n.',
+    phonetic: '/kəˈmɪtmənt/',
     dictionaryMeaning: '承诺；投入；责任',
     meaningInContext: '长期投入',
     notThisMeaning: '并非单纯口头答应。',
@@ -39,7 +41,7 @@ describe('showEntryCard', () => {
     expect(document.querySelector('.cv-loading-time')?.textContent).toBe('1.18s');
   });
 
-  it('renders compact card with star save, confusing label, inline familiarity, and example', () => {
+  it('renders compact card with word metadata, star save, confusing label, and optional panels', () => {
     showEntryCard(10, 10, entry(), {
       isSaved: false,
       onSave: vi.fn(),
@@ -56,17 +58,19 @@ describe('showEntryCard', () => {
     });
 
     expect(document.body.textContent).toContain('词典义');
+    expect(document.body.textContent).toContain('n.');
+    expect(document.body.textContent).toContain('/kəˈmɪtmənt/');
     expect(document.body.textContent).toContain('易混淆');
     expect(document.body.textContent).toContain('当前例句');
     expect(document.body.textContent).toContain('记忆程度');
     expect(document.body.textContent).toContain('完成 1.18s');
     expect(document.body.textContent).toContain('整段翻译');
     expect(document.body.textContent).toContain('这个项目需要每个人长期投入。');
-    expect(document.body.textContent).not.toContain('语言');
     const saveButton = document.querySelector<HTMLButtonElement>('[data-action="toggle-save"]');
     expect(saveButton?.classList.contains('cv-star')).toBe(true);
     expect(saveButton?.closest('.cv-header')).not.toBeNull();
     expect(saveButton?.getAttribute('aria-label')).toBe('收藏 commitment');
+    expect(document.querySelector('[data-action="speak"]')).not.toBeNull();
     expect(document.querySelector('.cv-actions')).toBeNull();
     expect(document.body.textContent).not.toContain('语义边界');
   });

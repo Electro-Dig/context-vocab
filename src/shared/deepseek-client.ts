@@ -10,6 +10,8 @@ export interface ExplainInput {
 }
 
 export interface ExplainResult {
+  partOfSpeech?: string;
+  phonetic?: string;
   dictionaryMeaning?: string;
   meaningInContext: string;
   notThisMeaning?: string;
@@ -46,7 +48,7 @@ export async function explainWithDeepSeek(input: ExplainInput, settings: AppSett
     body: JSON.stringify({
       model: settings.deepseekModel,
       messages: [
-        { role: 'system', content: '你是专业、简洁的英文语境词义解释器。只返回合法 JSON。' },
+        { role: 'system', content: '你是专业、简洁的英语语境词义解释器。只返回合法 JSON。' },
         { role: 'user', content: buildContextExplanationPrompt(input) }
       ],
       temperature: settings.temperature,
@@ -63,6 +65,8 @@ export async function explainWithDeepSeek(input: ExplainInput, settings: AppSett
 
   const parsed = extractJsonObject(content);
   return {
+    partOfSpeech: optionalString(parsed.part_of_speech),
+    phonetic: optionalString(parsed.phonetic),
     dictionaryMeaning: optionalString(parsed.dictionary_meaning),
     meaningInContext: optionalString(parsed.meaning_in_context) ?? '',
     notThisMeaning: optionalString(parsed.not_this_meaning),

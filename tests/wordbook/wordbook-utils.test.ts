@@ -26,6 +26,8 @@ function entry(
     term,
     normalizedTerm: term.toLowerCase(),
     language: 'en',
+    partOfSpeech: 'n.',
+    phonetic: '/test/',
     meaningInContext: `${term} 的语境义`,
     contextExplanation: `${term} 的解释`,
     originalSentence: `A sentence with ${term}.`,
@@ -39,12 +41,13 @@ function entry(
 }
 
 describe('wordbook helpers', () => {
-  it('filters by term, meaning, and sentence case-insensitively', () => {
+  it('filters by term, meaning, sentence, and metadata case-insensitively', () => {
     const entries = [entry('commitment', 'unknown'), entry('take ownership', 'familiar')];
 
     expect(filterWordEntries(entries, 'COMMIT')).toHaveLength(1);
     expect(filterWordEntries(entries, '语境义')).toHaveLength(2);
     expect(filterWordEntries(entries, 'ownership')[0]?.term).toBe('take ownership');
+    expect(filterWordEntries(entries, '/test/')).toHaveLength(2);
   });
 
   it('sorts filtered entries by newest update first', () => {

@@ -27,6 +27,8 @@ export interface WordEntry {
   term: string;
   normalizedTerm: string;
   language: string;
+  partOfSpeech?: string;
+  phonetic?: string;
   dictionaryMeaning?: string;
   meaningInContext: string;
   notThisMeaning?: string;

@@ -71,6 +71,8 @@ export async function handleRuntimeRequest(request: RuntimeRequest): Promise<unk
       term: request.payload.term,
       normalizedTerm: normalizeTerm(request.payload.term),
       language: explanation.detectedLanguage,
+      partOfSpeech: explanation.partOfSpeech,
+      phonetic: explanation.phonetic,
       dictionaryMeaning: explanation.dictionaryMeaning,
       meaningInContext: explanation.meaningInContext,
       notThisMeaning: explanation.notThisMeaning,

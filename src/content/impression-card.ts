@@ -59,11 +59,7 @@ export function showLoadingCard(x: number, y: number, term: string, startedAt = 
 }
 
 export function showErrorCard(x: number, y: number, message: string): void {
-  renderBase(
-    x,
-    y,
-    `<div class="cv-term">解析失败</div><div class="cv-error">${escapeHtml(message)}</div>`
-  );
+  renderBase(x, y, `<div class="cv-term">解析失败</div><div class="cv-error">${escapeHtml(message)}</div>`);
 }
 
 export function showEntryCard(x: number, y: number, entry: WordEntry, callbacks: EntryCardCallbacks): void {
@@ -79,6 +75,8 @@ export function showEntryCard(x: number, y: number, entry: WordEntry, callbacks:
       <div class="cv-title-stack">
         <div class="cv-title-row">
           <div class="cv-term">${escapeHtml(entry.term)}</div>
+          ${renderWordMeta(entry)}
+          ${renderSpeakButton(entry)}
           ${renderStarButton(saved, entry.term)}
           ${renderTiming(callbacks.timing)}
         </div>
@@ -136,6 +134,11 @@ export function showEntryCard(x: number, y: number, entry: WordEntry, callbacks:
     if (action === 'close') {
       callbacks.onClose?.();
       removeCard();
+      return;
+    }
+
+    if (action === 'speak') {
+      speakTerm(entry.term);
       return;
     }
 
@@ -218,6 +221,25 @@ function renderBase(x: number, y: number, html: string): HTMLDivElement {
   return card;
 }
 
+function renderWordMeta(entry: WordEntry): string {
+  const parts = [
+    entry.partOfSpeech ? `<span class="cv-pos">${escapeHtml(entry.partOfSpeech)}</span>` : '',
+    entry.phonetic ? `<span class="cv-phonetic">${escapeHtml(entry.phonetic)}</span>` : ''
+  ].filter(Boolean);
+  return parts.length ? `<div class="cv-word-meta">${parts.join('')}</div>` : '';
+}
+
+function renderSpeakButton(entry: WordEntry): string {
+  if (!entry.phonetic && !/^[A-Za-z]+(?:[-'][A-Za-z]+)?$/.test(entry.term.trim())) return '';
+  return `<button class="cv-speak" data-action="speak" aria-label="朗读 ${escapeHtml(entry.term)}" title="朗读">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M4 9v6h4l5 4V5L8 9H4z"></path>
+      <path d="M16 9.5c1.1 1.4 1.1 3.6 0 5"></path>
+      <path d="M18.5 7c2.1 2.8 2.1 7.2 0 10"></path>
+    </svg>
+  </button>`;
+}
+
 function renderStarButton(saved: boolean, term: string): string {
   const label = `${saved ? '取消收藏' : '收藏'} ${term}`;
   return `<button class="cv-star ${saved ? 'is-saved' : ''}" data-action="toggle-save" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}" aria-pressed="${saved}">
@@ -265,6 +287,15 @@ function markSelectedLevel(card: HTMLElement, selected: Familiarity): void {
     button.classList.toggle('is-active', isActive);
     button.setAttribute('aria-pressed', String(isActive));
   });
+}
+
+function speakTerm(term: string): void {
+  if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) return;
+  const utterance = new SpeechSynthesisUtterance(term);
+  utterance.lang = 'en-US';
+  utterance.rate = 0.88;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utterance);
 }
 
 function showInlineError(card: HTMLElement, message: string): void {

@@ -3,9 +3,11 @@ import { explainWithDeepSeek } from '../../src/shared/deepseek-client';
 import { DEFAULT_SETTINGS } from '../../src/shared/storage';
 
 describe('explainWithDeepSeek', () => {
-  it('calls DeepSeek with concise JSON instructions and parses dictionary meaning', async () => {
+  it('calls DeepSeek with concise JSON instructions and parses dictionary metadata', async () => {
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({
       choices: [{ message: { content: JSON.stringify({
+        part_of_speech: 'n.',
+        phonetic: '/kəˈmɪtmənt/',
         dictionary_meaning: '承诺；投入；责任',
         meaning_in_context: '长期投入',
         not_this_meaning: '并非单纯口头答应。',
@@ -31,17 +33,21 @@ describe('explainWithDeepSeek', () => {
     const [, requestInit] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
     const requestBody = JSON.parse(requestInit.body as string);
     expect(requestBody.max_tokens).toBeLessThanOrEqual(420);
+    expect(requestBody.messages[1].content).toContain('part_of_speech');
+    expect(requestBody.messages[1].content).toContain('phonetic');
     expect(requestBody.messages[1].content).toContain('词典义');
     expect(requestBody.messages[1].content).toContain('语境原文');
+    expect(result.partOfSpeech).toBe('n.');
+    expect(result.phonetic).toBe('/kəˈmɪtmənt/');
     expect(result.dictionaryMeaning).toBe('承诺；投入；责任');
     expect(result.meaningInContext).toBe('长期投入');
     expect(result.passageTranslation).toBe('这个项目需要每个人长期投入。');
   });
 
-  it('does not request passage translation when the feature is disabled', async () => {
+  it('does not request word metadata or passage translation for phrase-only prompts', async () => {
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({
       choices: [{ message: { content: JSON.stringify({
-        dictionary_meaning: '问题',
+        dictionary_meaning: '不同层面的难题',
         meaning_in_context: '不同层面的难题',
         context_explanation: '此处强调问题层次不同。',
         detected_language: 'en'
@@ -50,12 +56,14 @@ describe('explainWithDeepSeek', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     await explainWithDeepSeek(
-      { term: 'problem', sentence: 'Knowing why is a different problem.', passageText: 'Knowing why is a different problem.' },
+      { term: 'different problem', sentence: 'Knowing why is a different problem.', passageText: 'Knowing why is a different problem.' },
       { ...DEFAULT_SETTINGS, deepseekApiKey: 'test-api-key' }
     );
 
     const [, requestInit] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
     const requestBody = JSON.parse(requestInit.body as string);
+    expect(requestBody.messages[1].content).not.toContain('part_of_speech');
+    expect(requestBody.messages[1].content).not.toContain('phonetic');
     expect(requestBody.messages[1].content).not.toContain('passage_translation');
     expect(requestBody.messages[1].content).not.toContain('语境原文');
   });

@@ -37,6 +37,8 @@ export function filterWordEntries(entries: WordEntry[], query: string): WordEntr
     const searchable = [
       entry.term,
       entry.normalizedTerm,
+      entry.partOfSpeech,
+      entry.phonetic,
       entry.dictionaryMeaning,
       entry.meaningInContext,
       entry.notThisMeaning,
@@ -48,7 +50,7 @@ export function filterWordEntries(entries: WordEntry[], query: string): WordEntr
       entry.sourceUrl
     ]
       .filter(Boolean)
-      .join('\\n')
+      .join('\n')
       .toLowerCase();
 
     return searchable.includes(normalizedQuery);

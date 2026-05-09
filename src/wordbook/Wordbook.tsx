@@ -74,18 +74,19 @@ export function Wordbook() {
     () => entries.find((entry) => entry.id === reviewEntryId) || reviewQueue[0],
     [entries, reviewEntryId, reviewQueue]
   );
+  const activeSource = sourceGroups.find((group) => group.key === activeSourceKey);
 
   return (
     <main className="wordbook-page">
       <header className="hero">
         <div>
           <p className="eyebrow">Context Vocab</p>
-          <h1>生词本</h1>
-          <p className="muted">管理已收藏的语境词义，保留来源、此处含义和记忆钩子。</p>
+          <h1>学习仪表盘</h1>
+          <p className="muted">管理语境生词、复习来源场景，并把收藏变成可回访的学习线索。</p>
         </div>
         <div className="summary-card" aria-label="生词统计">
           <strong>{summary.total}</strong>
-          <span>全部</span>
+          <span>全部收藏</span>
           <span>初识 {summary.unknown}</span>
           <span>识别 {summary.familiar}</span>
           <span>掌握 {summary.known}</span>
@@ -106,7 +107,7 @@ export function Wordbook() {
 
       {status ? <p className="status">{status}</p> : null}
 
-      <section className="review-board" aria-label="今日复习">
+      <section className="review-board" aria-label="复习仪表盘">
         <div className="review-card">
           <div className="review-card-head">
             <span>今日复习</span>
@@ -142,9 +143,10 @@ export function Wordbook() {
             <p className="muted">暂无待复习词。新的初识或识别词会出现在这里。</p>
           )}
         </div>
+
         <div className="source-shelf">
           <div className="source-shelf-head">
-            <span>来源回看</span>
+            <span>来源回访</span>
             {activeSourceKey !== 'all' ? <button onClick={() => setActiveSourceKey('all')}>清除</button> : null}
           </div>
           <button
@@ -169,7 +171,7 @@ export function Wordbook() {
 
       {activeSourceKey !== 'all' ? (
         <section className="active-filter">
-          <span>正在查看：{sourceGroups.find((group) => group.key === activeSourceKey)?.host}</span>
+          <span>正在查看：{activeSource?.host}</span>
           <button onClick={() => setActiveSourceKey('all')}>显示全部</button>
         </section>
       ) : null}
@@ -190,7 +192,8 @@ export function Wordbook() {
                     <div>
                       <h2>{entry.term}</h2>
                       <p className="meta">
-                        {entry.language} · {new Date(entry.createdAt).toLocaleString()}
+                        {[entry.language, entry.partOfSpeech, entry.phonetic].filter(Boolean).join(' · ')} ·{' '}
+                        {new Date(entry.createdAt).toLocaleString()}
                       </p>
                       <a
                         className="source-link"

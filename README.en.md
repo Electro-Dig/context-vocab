@@ -11,10 +11,11 @@ Context Vocab is a local-first Chrome extension for learning English words in co
 ## Features
 
 - **Context-aware explanations**: Select an English word or phrase and get dictionary meaning, meaning in context, confusing boundary, and a memory hook.
+- **Dictionary-grade metadata**: Single-word selections can include part of speech, common phonetic spelling, and a local pronunciation button.
 - **Compact floating card**: The card follows the selected text, shows save state, loading state, elapsed time, and only the useful explanation details.
 - **Instant save and highlight**: Click the star to save and immediately highlight the selected term on the page; unstar to remove it.
 - **Passage translation**: Optionally translate a short surrounding passage to understand the full sentence group without sending too much text.
-- **Local wordbook**: Browse by date, familiarity, and source. Review today, recall randomly, and un-favorite directly from any word card.
+- **Learning dashboard**: Browse by date, familiarity, and source. Review today, recall randomly, and un-favorite directly from any word card.
 - **Visible performance**: The loading card shows DeepSeek response time, and cached explanations avoid repeated model calls.
 - **Privacy-first**: No bundled backend. API keys and wordbook data stay in local browser storage.
 

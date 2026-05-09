@@ -5,6 +5,8 @@ import type { WordEntry } from '../src/shared/types';
 
 vi.mock('../src/shared/deepseek-client', () => ({
   explainWithDeepSeek: vi.fn(async () => ({
+    partOfSpeech: 'n.',
+    phonetic: '/kəˈmɪtmənt/',
     dictionaryMeaning: '承诺；投入；责任',
     meaningInContext: '长期投入',
     notThisMeaning: '并非单纯的口头答应。',
@@ -30,6 +32,8 @@ describe('handleRuntimeRequest', () => {
     const response = await handleRuntimeRequest({ type: 'EXPLAIN_SELECTION', payload: basePayload });
 
     expect(response).toHaveProperty('entry.meaningInContext', '长期投入');
+    expect(response).toHaveProperty('entry.partOfSpeech', 'n.');
+    expect(response).toHaveProperty('entry.phonetic', '/kəˈmɪtmənt/');
     expect(response).toHaveProperty('entry.dictionaryMeaning', '承诺；投入；责任');
     expect(response).toHaveProperty('entry.passageText', basePayload.passageText);
     expect(response).toHaveProperty('entry.passageTranslation', '这个项目需要长期投入。');

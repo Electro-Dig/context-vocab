@@ -9,6 +9,8 @@ const entry: WordEntry = {
   term: 'commitment',
   normalizedTerm: 'commitment',
   language: 'en',
+  partOfSpeech: 'n.',
+  phonetic: '/kəˈmɪtmənt/',
   dictionaryMeaning: '承诺；投入；责任',
   meaningInContext: '长期投入',
   contextExplanation: '强调持续投入时间和精力。',
@@ -55,9 +57,10 @@ describe('storage', () => {
     expect(storedSettings.showFamiliarityControl).toBe(false);
   });
 
-  it('saves settings and word entries', async () => {
+  it('saves settings and word entries with word metadata', async () => {
     await saveSettings({ deepseekApiKey: 'test-api-key', autoSaveOnExplain: true, showMemoryHook: false });
     await upsertWordEntry(entry);
+    expect((await getWordEntries())[0].partOfSpeech).toBe('n.');
     await updateFamiliarity('en:commitment', 'familiar');
     await deleteWordEntry('en:commitment');
     expect((await getSettings()).deepseekApiKey).toBe('test-api-key');
