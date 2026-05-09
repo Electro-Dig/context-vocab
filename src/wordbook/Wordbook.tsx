@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { deleteWordEntry, getWordEntries, updateFamiliarity } from '../shared/storage';
 import type { Familiarity, WordEntry } from '../shared/types';
 import {
+  buildReviewChoices,
   buildReviewQueue,
   buildSourceGroups,
   FAMILIARITY_LABELS,
@@ -22,6 +23,7 @@ export function Wordbook() {
   const [activeSourceKey, setActiveSourceKey] = useState('all');
   const [reviewEntryId, setReviewEntryId] = useState<string | null>(null);
   const [reviewRevealed, setReviewRevealed] = useState(false);
+  const [selectedChoiceId, setSelectedChoiceId] = useState<string | null>(null);
 
   useEffect(() => {
     void reloadEntries();
@@ -41,6 +43,7 @@ export function Wordbook() {
     setStatus(`已标记：${FAMILIARITY_LABELS[familiarity]}`);
     if (reviewEntryId === id) setReviewEntryId(null);
     setReviewRevealed(false);
+    setSelectedChoiceId(null);
   }
 
   async function removeFavorite(entry: WordEntry) {
@@ -49,6 +52,7 @@ export function Wordbook() {
     if (reviewEntryId === entry.id) {
       setReviewEntryId(null);
       setReviewRevealed(false);
+      setSelectedChoiceId(null);
     }
     setStatus(`已取消收藏：${entry.term}`);
   }
@@ -59,6 +63,21 @@ export function Wordbook() {
     const next = pool[Math.floor(Math.random() * pool.length)];
     setReviewEntryId(next.id);
     setReviewRevealed(false);
+    setSelectedChoiceId(null);
+  }
+
+  function goNextReview() {
+    if (reviewQueue.length === 0) return;
+    const currentIndex = activeReview ? reviewQueue.findIndex((entry) => entry.id === activeReview.id) : -1;
+    const next = reviewQueue[(currentIndex + 1) % reviewQueue.length] || reviewQueue[0];
+    setReviewEntryId(next.id);
+    setReviewRevealed(false);
+    setSelectedChoiceId(null);
+  }
+
+  function chooseReviewOption(choiceId: string) {
+    setSelectedChoiceId(choiceId);
+    setReviewRevealed(true);
   }
 
   const sourceGroups = useMemo(() => buildSourceGroups(entries), [entries]);
@@ -74,6 +93,11 @@ export function Wordbook() {
     () => entries.find((entry) => entry.id === reviewEntryId) || reviewQueue[0],
     [entries, reviewEntryId, reviewQueue]
   );
+  const reviewChoices = useMemo(
+    () => (activeReview ? buildReviewChoices(activeReview, entries) : []),
+    [activeReview, entries]
+  );
+  const reviewPosition = activeReview ? Math.max(1, reviewQueue.findIndex((entry) => entry.id === activeReview.id) + 1) : 0;
   const activeSource = sourceGroups.find((group) => group.key === activeSourceKey);
 
   return (
@@ -82,14 +106,16 @@ export function Wordbook() {
         <div>
           <p className="eyebrow">Context Vocab</p>
           <h1>学习仪表盘</h1>
-          <p className="muted">管理语境生词、复习来源场景，并把收藏变成可回访的学习线索。</p>
+          <p className="muted">管理语境生词、复习上下文，并把收藏变成可回访的学习线索。</p>
         </div>
         <div className="summary-card" aria-label="生词统计">
+          <span className="summary-label">收藏总量</span>
           <strong>{summary.total}</strong>
-          <span>全部收藏</span>
-          <span>初识 {summary.unknown}</span>
-          <span>识别 {summary.familiar}</span>
-          <span>掌握 {summary.known}</span>
+          <div className="summary-breakdown">
+            <span><b>{summary.unknown}</b> 初识</span>
+            <span><b>{summary.familiar}</b> 识别</span>
+            <span><b>{summary.known}</b> 掌握</span>
+          </div>
         </div>
       </header>
 
@@ -110,13 +136,45 @@ export function Wordbook() {
       <section className="review-board" aria-label="复习仪表盘">
         <div className="review-card">
           <div className="review-card-head">
-            <span>今日复习</span>
-            <strong>{reviewQueue.length}</strong>
+            <div>
+              <span>今日复习</span>
+              <p>选择缺口里最合适的词</p>
+            </div>
+            <strong>{reviewQueue.length}<small>张</small></strong>
           </div>
           {activeReview ? (
             <>
-              <p className="review-source">{formatEntrySourceLabel(activeReview, 46)}</p>
+              <div className="review-meta-row">
+                <span>第 {reviewPosition} / {reviewQueue.length} 题</span>
+                <span>{formatEntrySourceLabel(activeReview, 46)}</span>
+              </div>
               <p className="review-prompt">{maskEntrySentence(activeReview)}</p>
+              <div className="review-choices" role="group" aria-label="复习选项">
+                {reviewChoices.map((choice, index) => {
+                  const isSelected = selectedChoiceId === choice.id;
+                  const revealState = reviewRevealed
+                    ? choice.correct
+                      ? 'correct'
+                      : isSelected
+                        ? 'wrong'
+                        : ''
+                    : '';
+                  return (
+                    <button
+                      key={choice.id}
+                      className={['review-choice', revealState, isSelected ? 'selected' : ''].filter(Boolean).join(' ')}
+                      onClick={() => chooseReviewOption(choice.id)}
+                      aria-pressed={isSelected}
+                    >
+                      <span className="choice-letter">{String.fromCharCode(65 + index)}</span>
+                      <span>
+                        <b>{choice.term}</b>
+                        <small>{choice.meaning}</small>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
               {reviewRevealed ? (
                 <div className="review-answer">
                   <h2>{activeReview.term}</h2>
@@ -126,9 +184,8 @@ export function Wordbook() {
                 </div>
               ) : null}
               <footer className="review-actions">
-                <button onClick={() => setReviewRevealed((value) => !value)}>
-                  {reviewRevealed ? '收起答案' : '显示答案'}
-                </button>
+                <button onClick={() => setReviewRevealed(true)}>直接看答案</button>
+                <button onClick={goNextReview}>下一张</button>
                 <button onClick={pickRandomReview}>随机回忆</button>
                 {reviewRevealed
                   ? familiarityOrder.map((value) => (
@@ -146,7 +203,7 @@ export function Wordbook() {
 
         <div className="source-shelf">
           <div className="source-shelf-head">
-            <span>来源回访</span>
+            <span>来源</span>
             {activeSourceKey !== 'all' ? <button onClick={() => setActiveSourceKey('all')}>清除</button> : null}
           </div>
           <button

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  buildReviewChoices,
   buildReviewQueue,
   buildSourceGroups,
   filterWordEntries,
@@ -101,6 +102,25 @@ describe('wordbook helpers', () => {
     ]);
 
     expect(queue.map((item) => item.term)).toEqual(['unknown', 'familiar']);
+  });
+
+  it('builds multiple-choice options with the active review answer included', () => {
+    const active = entry('commitment', 'unknown');
+    const choices = buildReviewChoices(active, [
+      active,
+      entry('conference', 'unknown'),
+      entry('format', 'familiar'),
+      entry('platform', 'known'),
+      entry('browser', 'unknown')
+    ]);
+
+    expect(choices).toHaveLength(4);
+    expect(choices.filter((choice) => choice.correct)).toHaveLength(1);
+    expect(choices.find((choice) => choice.correct)).toMatchObject({
+      id: active.id,
+      term: 'commitment',
+      meaning: 'commitment 的语境义'
+    });
   });
 
   it('masks the reviewed term in its original sentence', () => {

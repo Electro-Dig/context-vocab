@@ -17,14 +17,12 @@ document.addEventListener('mouseup', async (event) => {
   if (!settings.extensionEnabled) return;
 
   const mouse = event as MouseEvent;
-  const requestStartedAt = performance.now();
   showLoadingCard(mouse.clientX, mouse.clientY, context.term);
 
   const response = (await chrome.runtime.sendMessage({
     type: 'EXPLAIN_SELECTION',
     payload: { ...context, url: location.href, title: document.title }
   })) as { entry?: WordEntry; saved?: boolean; cached?: boolean; error?: string };
-  const elapsedMs = performance.now() - requestStartedAt;
 
   if (response.error || !response.entry) {
     showErrorCard(mouse.clientX, mouse.clientY, response.error || '未返回解析结果');
@@ -61,10 +59,6 @@ document.addEventListener('mouseup', async (event) => {
       await chrome.runtime.sendMessage({ type: 'UPDATE_FAMILIARITY', payload: { id: entry.id, familiarity } });
       entry = { ...entry, familiarity };
       await syncSavedEntryHighlight(entry);
-    },
-    timing: {
-      elapsedMs,
-      cached: Boolean(response.cached)
     },
     display: {
       showCurrentExample: settings.showCurrentExample,

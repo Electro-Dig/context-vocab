@@ -70,6 +70,7 @@
 }
 
 #context-vocab-impression-card .cv-term {
+  flex: 1 1 auto;
   margin: 0;
   color: var(--cv-ink);
   font-size: 20px;
@@ -78,36 +79,7 @@
   overflow-wrap: anywhere;
 }
 
-#context-vocab-impression-card .cv-word-meta {
-  display: flex;
-  flex: 0 1 auto;
-  gap: 5px;
-  align-items: center;
-  min-width: 0;
-}
-
-#context-vocab-impression-card .cv-pos,
-#context-vocab-impression-card .cv-phonetic {
-  display: inline-flex;
-  align-items: center;
-  min-height: 20px;
-  border-radius: 999px;
-  padding: 2px 7px;
-  background: var(--cv-panel);
-  color: var(--cv-muted);
-  font-size: 11px;
-  font-weight: 750;
-  white-space: nowrap;
-}
-
-#context-vocab-impression-card .cv-phonetic {
-  max-width: 112px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-#context-vocab-impression-card .cv-star,
-#context-vocab-impression-card .cv-speak {
+#context-vocab-impression-card .cv-star {
   display: grid;
   flex: 0 0 auto;
   place-items: center;
@@ -118,11 +90,6 @@
   background: #f4f6fa;
   color: #98a2b3;
   cursor: pointer;
-}
-
-#context-vocab-impression-card .cv-speak:hover {
-  background: #eef6ff;
-  color: #2563eb;
 }
 
 #context-vocab-impression-card .cv-star:hover {
@@ -142,8 +109,7 @@
   opacity: 0.72;
 }
 
-#context-vocab-impression-card .cv-star svg,
-#context-vocab-impression-card .cv-speak svg {
+#context-vocab-impression-card .cv-star svg {
   width: 15px;
   height: 15px;
   fill: transparent;
@@ -153,17 +119,11 @@
   stroke-width: 1.9;
 }
 
-#context-vocab-impression-card .cv-speak svg path:first-child {
-  fill: currentColor;
-  stroke: currentColor;
-}
-
 #context-vocab-impression-card .cv-star.is-saved svg {
   fill: currentColor;
 }
 
-#context-vocab-impression-card .cv-loading-time,
-#context-vocab-impression-card .cv-timing {
+#context-vocab-impression-card .cv-loading-time {
   flex: 0 0 auto;
   border: 1px solid #a7f3d0;
   border-radius: 999px;
@@ -176,19 +136,17 @@
   white-space: nowrap;
 }
 
-#context-vocab-impression-card .cv-timing.is-cached {
-  border-color: #bfdbfe;
-  background: #eff6ff;
-  color: #1d4ed8;
-}
-
 #context-vocab-impression-card .cv-dictionary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 7px;
+  align-items: baseline;
   margin-top: 4px;
   color: #475467;
   font-size: 12.5px;
 }
 
-#context-vocab-impression-card .cv-dictionary span,
+#context-vocab-impression-card .cv-dictionary-label,
 #context-vocab-impression-card .cv-label {
   display: inline-block;
   margin-right: 7px;
@@ -196,6 +154,22 @@
   font-size: 11px;
   font-weight: 780;
   letter-spacing: 0;
+}
+
+#context-vocab-impression-card .cv-pos-inline {
+  color: var(--cv-ink);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+#context-vocab-impression-card .cv-phonetic-inline {
+  color: var(--cv-muted);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+#context-vocab-impression-card .cv-dictionary-text {
+  flex: 1 1 160px;
 }
 
 #context-vocab-impression-card .cv-block {
@@ -248,7 +222,7 @@
   background: var(--cv-warm);
 }
 
-#context-vocab-impression-card .cv-passage-translation {
+#context-vocab-impression-card .cv-passage .cv-passage-translation {
   display: -webkit-box;
   overflow: hidden;
   color: var(--cv-ink);

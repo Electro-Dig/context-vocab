@@ -30,7 +30,7 @@ function entry(): WordEntry {
 }
 
 describe('showEntryCard', () => {
-  it('formats elapsed time for loading and finished states', () => {
+  it('formats elapsed time for the loading state', () => {
     expect(formatElapsedTime(0)).toBe('0.00s');
     expect(formatElapsedTime(1180)).toBe('1.18s');
   });
@@ -41,7 +41,7 @@ describe('showEntryCard', () => {
     expect(document.querySelector('.cv-loading-time')?.textContent).toBe('1.18s');
   });
 
-  it('renders compact card with word metadata, star save, confusing label, and optional panels', () => {
+  it('renders compact card with word metadata below the title, star save, and optional panels', () => {
     showEntryCard(10, 10, entry(), {
       isSaved: false,
       onSave: vi.fn(),
@@ -63,14 +63,18 @@ describe('showEntryCard', () => {
     expect(document.body.textContent).toContain('易混淆');
     expect(document.body.textContent).toContain('当前例句');
     expect(document.body.textContent).toContain('记忆程度');
-    expect(document.body.textContent).toContain('完成 1.18s');
+    expect(document.body.textContent).not.toContain('完成 1.18s');
     expect(document.body.textContent).toContain('整段翻译');
     expect(document.body.textContent).toContain('这个项目需要每个人长期投入。');
     const saveButton = document.querySelector<HTMLButtonElement>('[data-action="toggle-save"]');
     expect(saveButton?.classList.contains('cv-star')).toBe(true);
     expect(saveButton?.closest('.cv-header')).not.toBeNull();
+    expect(saveButton?.closest('.cv-title-row')).not.toBeNull();
     expect(saveButton?.getAttribute('aria-label')).toBe('收藏 commitment');
-    expect(document.querySelector('[data-action="speak"]')).not.toBeNull();
+    expect(document.querySelector('[data-action="speak"]')).toBeNull();
+    expect(document.querySelector('.cv-word-meta')).toBeNull();
+    expect(document.querySelector('.cv-dictionary .cv-pos-inline')?.textContent).toBe('n.');
+    expect(document.querySelector('.cv-dictionary .cv-phonetic-inline')?.textContent).toBe('/kəˈmɪtmənt/');
     expect(document.querySelector('.cv-actions')).toBeNull();
     expect(document.body.textContent).not.toContain('语义边界');
   });

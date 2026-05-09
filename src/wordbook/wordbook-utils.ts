@@ -22,6 +22,13 @@ export interface SourceGroup {
   entries: WordEntry[];
 }
 
+export interface ReviewChoice {
+  id: string;
+  term: string;
+  meaning: string;
+  correct: boolean;
+}
+
 export const FAMILIARITY_LABELS: Record<Familiarity, string> = {
   unknown: '初识',
   familiar: '识别',
@@ -97,6 +104,20 @@ export function buildReviewQueue(entries: WordEntry[], limit = 5): WordEntry[] {
     .slice(0, limit);
 }
 
+export function buildReviewChoices(activeEntry: WordEntry, entries: WordEntry[], limit = 4): ReviewChoice[] {
+  const distractors = filterWordEntries(entries, '')
+    .filter((entry) => entry.id !== activeEntry.id)
+    .slice(0, Math.max(0, limit - 1));
+  const choices = [activeEntry, ...distractors].map((entry) => ({
+    id: entry.id,
+    term: entry.term,
+    meaning: entry.meaningInContext || entry.dictionaryMeaning || entry.contextExplanation,
+    correct: entry.id === activeEntry.id
+  }));
+
+  return stableChoiceOrder(choices, activeEntry.id).slice(0, limit);
+}
+
 export function maskEntrySentence(entry: WordEntry): string {
   const sentence = entry.originalSentence.trim();
   if (!sentence) return '';
@@ -104,6 +125,19 @@ export function maskEntrySentence(entry: WordEntry): string {
   const index = sentence.toLowerCase().indexOf(entry.term.toLowerCase());
   if (index < 0) return sentence;
   return `${sentence.slice(0, index)}____${sentence.slice(index + entry.term.length)}`;
+}
+
+function stableChoiceOrder(choices: ReviewChoice[], seed: string): ReviewChoice[] {
+  return [...choices].sort((a, b) => choiceRank(a.id, seed) - choiceRank(b.id, seed));
+}
+
+function choiceRank(value: string, seed: string): number {
+  let hash = 0;
+  const input = `${seed}:${value}`;
+  for (let index = 0; index < input.length; index += 1) {
+    hash = (hash * 31 + input.charCodeAt(index)) >>> 0;
+  }
+  return hash;
 }
 
 export function buildSourceGroups(entries: WordEntry[]): SourceGroup[] {

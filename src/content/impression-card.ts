@@ -75,12 +75,9 @@ export function showEntryCard(x: number, y: number, entry: WordEntry, callbacks:
       <div class="cv-title-stack">
         <div class="cv-title-row">
           <div class="cv-term">${escapeHtml(entry.term)}</div>
-          ${renderWordMeta(entry)}
-          ${renderSpeakButton(entry)}
           ${renderStarButton(saved, entry.term)}
-          ${renderTiming(callbacks.timing)}
         </div>
-        ${entry.dictionaryMeaning ? `<div class="cv-dictionary"><span>词典义</span>${escapeHtml(entry.dictionaryMeaning)}</div>` : ''}
+        ${renderDictionaryLine(entry)}
       </div>
     </header>
 
@@ -134,11 +131,6 @@ export function showEntryCard(x: number, y: number, entry: WordEntry, callbacks:
     if (action === 'close') {
       callbacks.onClose?.();
       removeCard();
-      return;
-    }
-
-    if (action === 'speak') {
-      speakTerm(entry.term);
       return;
     }
 
@@ -221,23 +213,14 @@ function renderBase(x: number, y: number, html: string): HTMLDivElement {
   return card;
 }
 
-function renderWordMeta(entry: WordEntry): string {
-  const parts = [
-    entry.partOfSpeech ? `<span class="cv-pos">${escapeHtml(entry.partOfSpeech)}</span>` : '',
-    entry.phonetic ? `<span class="cv-phonetic">${escapeHtml(entry.phonetic)}</span>` : ''
-  ].filter(Boolean);
-  return parts.length ? `<div class="cv-word-meta">${parts.join('')}</div>` : '';
-}
-
-function renderSpeakButton(entry: WordEntry): string {
-  if (!entry.phonetic && !/^[A-Za-z]+(?:[-'][A-Za-z]+)?$/.test(entry.term.trim())) return '';
-  return `<button class="cv-speak" data-action="speak" aria-label="朗读 ${escapeHtml(entry.term)}" title="朗读">
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="M4 9v6h4l5 4V5L8 9H4z"></path>
-      <path d="M16 9.5c1.1 1.4 1.1 3.6 0 5"></path>
-      <path d="M18.5 7c2.1 2.8 2.1 7.2 0 10"></path>
-    </svg>
-  </button>`;
+function renderDictionaryLine(entry: WordEntry): string {
+  if (!entry.dictionaryMeaning && !entry.partOfSpeech && !entry.phonetic) return '';
+  return `<div class="cv-dictionary">
+    <span class="cv-dictionary-label">词典义</span>
+    ${entry.partOfSpeech ? `<span class="cv-pos-inline">${escapeHtml(entry.partOfSpeech)}</span>` : ''}
+    ${entry.phonetic ? `<span class="cv-phonetic-inline">${escapeHtml(entry.phonetic)}</span>` : ''}
+    ${entry.dictionaryMeaning ? `<span class="cv-dictionary-text">${escapeHtml(entry.dictionaryMeaning)}</span>` : ''}
+  </div>`;
 }
 
 function renderStarButton(saved: boolean, term: string): string {
@@ -247,12 +230,6 @@ function renderStarButton(saved: boolean, term: string): string {
       <path d="M12 3.6l2.54 5.15 5.68.82-4.11 4.01.97 5.66L12 16.56 6.92 19.24l.97-5.66-4.11-4.01 5.68-.82L12 3.6z"></path>
     </svg>
   </button>`;
-}
-
-function renderTiming(timing?: EntryCardTiming): string {
-  if (typeof timing?.elapsedMs !== 'number') return '';
-  const label = timing.cached ? '缓存' : '完成';
-  return `<span class="cv-timing ${timing.cached ? 'is-cached' : ''}">${label} ${formatElapsedTime(timing.elapsedMs)}</span>`;
 }
 
 function updateStarButton(button: HTMLButtonElement, saved: boolean, term: string, pending = false): void {
@@ -287,15 +264,6 @@ function markSelectedLevel(card: HTMLElement, selected: Familiarity): void {
     button.classList.toggle('is-active', isActive);
     button.setAttribute('aria-pressed', String(isActive));
   });
-}
-
-function speakTerm(term: string): void {
-  if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) return;
-  const utterance = new SpeechSynthesisUtterance(term);
-  utterance.lang = 'en-US';
-  utterance.rate = 0.88;
-  window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(utterance);
 }
 
 function showInlineError(card: HTMLElement, message: string): void {
