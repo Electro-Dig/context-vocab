@@ -81,6 +81,12 @@ npm run build
 | --- | --- |
 | ![English UI concept](./assets/posters/context-vocab-poster-01-ui-en.png) | ![English privacy concept](./assets/posters/context-vocab-poster-02-privacy-en.png) |
 
+| 竖版主视觉 | 竖版词库视觉 |
+| --- | --- |
+| ![竖版主视觉](./assets/posters/context-vocab-poster-05-ui-zh-vertical.png) | ![竖版词库视觉](./assets/posters/context-vocab-poster-06-wordbook-zh-vertical.png) |
+
+插件图标位于 `assets/icons/`，manifest 已使用 16、32、48 和 128 像素版本。
+
 ## 当前状态
 
 这是一个早期可用的 Chrome Extension MVP，适合本地安装、试用和二次开发。它还没有发布到 Chrome Web Store，也没有云同步、PDF 支持或完整的间隔重复算法。

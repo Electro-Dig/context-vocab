@@ -5,7 +5,19 @@ const manifest: ManifestV3Export = {
   name: 'Context Vocab',
   description: 'Select words, understand them in context, and meet them again across the web.',
   version: '0.1.0',
+  icons: {
+    16: 'assets/icons/icon-16.png',
+    32: 'assets/icons/icon-32.png',
+    48: 'assets/icons/icon-48.png',
+    128: 'assets/icons/icon-128.png'
+  },
   action: {
+    default_icon: {
+      16: 'assets/icons/icon-16.png',
+      32: 'assets/icons/icon-32.png',
+      48: 'assets/icons/icon-48.png',
+      128: 'assets/icons/icon-128.png'
+    },
     default_popup: 'src/popup/index.html',
     default_title: 'Context Vocab'
   },

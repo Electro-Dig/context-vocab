@@ -81,6 +81,12 @@ These images are AI-generated promotional concepts for the public README and pro
 | --- | --- |
 | ![English UI concept](./assets/posters/context-vocab-poster-01-ui-en.png) | ![English privacy concept](./assets/posters/context-vocab-poster-02-privacy-en.png) |
 
+| Vertical main visual | Vertical wordbook visual |
+| --- | --- |
+| ![Vertical main visual](./assets/posters/context-vocab-poster-05-ui-zh-vertical.png) | ![Vertical wordbook visual](./assets/posters/context-vocab-poster-06-wordbook-zh-vertical.png) |
+
+Extension icons live in `assets/icons/`, and the manifest uses the 16, 32, 48, and 128 pixel versions.
+
 ## Status
 
 This is an early but usable Chrome Extension MVP for local installation, testing, and further development. It is not published to the Chrome Web Store yet, and it does not include cloud sync, PDF support, or a full spaced-repetition engine.
