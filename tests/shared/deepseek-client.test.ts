@@ -32,7 +32,9 @@ describe('explainWithDeepSeek', () => {
 
     const [, requestInit] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
     const requestBody = JSON.parse(requestInit.body as string);
-    expect(requestBody.max_tokens).toBeLessThanOrEqual(420);
+    expect(requestBody.max_tokens).toBe(240);
+    expect(requestBody.thinking).toEqual({ type: 'disabled' });
+    expect(requestBody.response_format).toEqual({ type: 'json_object' });
     expect(requestBody.messages[1].content).toContain('part_of_speech');
     expect(requestBody.messages[1].content).toContain('phonetic');
     expect(requestBody.messages[1].content).toContain('词典义');

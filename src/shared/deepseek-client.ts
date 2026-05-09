@@ -53,6 +53,8 @@ export async function explainWithDeepSeek(input: ExplainInput, settings: AppSett
       ],
       temperature: settings.temperature,
       max_tokens: settings.maxOutputTokens,
+      thinking: { type: 'disabled' },
+      response_format: { type: 'json_object' },
       stream: false
     })
   });

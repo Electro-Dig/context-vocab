@@ -13,7 +13,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   explanationLanguage: 'zh-CN',
   contextMode: 'sentence',
   temperature: 0.2,
-  maxOutputTokens: 360,
+  maxOutputTokens: 240,
   autoSaveOnExplain: false,
   highlightEnabled: true,
   preferCachedExplanations: true,

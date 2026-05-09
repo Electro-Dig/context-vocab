@@ -26,6 +26,7 @@ describe('storage', () => {
   it('returns DeepSeek defaults and module display defaults', async () => {
     const settings = await getSettings();
     expect(settings.deepseekModel).toBe(DEFAULT_DEEPSEEK_MODEL);
+    expect(settings.maxOutputTokens).toBe(240);
     expect(settings.autoSaveOnExplain).toBe(false);
     expect(settings.highlightEnabled).toBe(true);
     expect(settings.showCurrentExample).toBe(false);
