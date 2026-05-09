@@ -69,24 +69,6 @@ npm run build
 - `src/wordbook/`：生词本、复习、来源聚合。
 - `tests/`：Vitest 单元测试。
 
-## 海报候选
-
-这些图片是公开 README 和项目宣传用的 AI 生成海报候选，文案和界面为示意图。
-
-| 中文主视觉 | 中文词库视觉 |
-| --- | --- |
-| ![中文主视觉](./assets/posters/context-vocab-poster-03-ui-zh.png) | ![中文词库视觉](./assets/posters/context-vocab-poster-04-wordbook-zh.png) |
-
-| English UI concept | English privacy concept |
-| --- | --- |
-| ![English UI concept](./assets/posters/context-vocab-poster-01-ui-en.png) | ![English privacy concept](./assets/posters/context-vocab-poster-02-privacy-en.png) |
-
-| 竖版主视觉 | 竖版词库视觉 |
-| --- | --- |
-| ![竖版主视觉](./assets/posters/context-vocab-poster-05-ui-zh-vertical.png) | ![竖版词库视觉](./assets/posters/context-vocab-poster-06-wordbook-zh-vertical.png) |
-
-插件图标位于 `assets/icons/`，manifest 已使用 16、32、48 和 128 像素版本。
-
 ## 当前状态
 
 这是一个早期可用的 Chrome Extension MVP，适合本地安装、试用和二次开发。它还没有发布到 Chrome Web Store，也没有云同步、PDF 支持或完整的间隔重复算法。

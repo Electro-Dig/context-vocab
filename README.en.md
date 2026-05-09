@@ -69,24 +69,6 @@ Project layout:
 - `src/wordbook/`: wordbook, review, source browsing.
 - `tests/`: Vitest unit tests.
 
-## Poster Candidates
-
-These images are AI-generated promotional concepts for the public README and project launch. UI text and data are illustrative.
-
-| Chinese main visual | Chinese wordbook visual |
-| --- | --- |
-| ![Chinese main visual](./assets/posters/context-vocab-poster-03-ui-zh.png) | ![Chinese wordbook visual](./assets/posters/context-vocab-poster-04-wordbook-zh.png) |
-
-| English UI concept | English privacy concept |
-| --- | --- |
-| ![English UI concept](./assets/posters/context-vocab-poster-01-ui-en.png) | ![English privacy concept](./assets/posters/context-vocab-poster-02-privacy-en.png) |
-
-| Vertical main visual | Vertical wordbook visual |
-| --- | --- |
-| ![Vertical main visual](./assets/posters/context-vocab-poster-05-ui-zh-vertical.png) | ![Vertical wordbook visual](./assets/posters/context-vocab-poster-06-wordbook-zh-vertical.png) |
-
-Extension icons live in `assets/icons/`, and the manifest uses the 16, 32, 48, and 128 pixel versions.
-
 ## Status
 
 This is an early but usable Chrome Extension MVP for local installation, testing, and further development. It is not published to the Chrome Web Store yet, and it does not include cloud sync, PDF support, or a full spaced-repetition engine.
