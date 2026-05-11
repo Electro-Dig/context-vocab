@@ -23,6 +23,7 @@ export function Options() {
     if (!settings) return;
     setStatus('正在测试...');
     try {
+      const startedAt = performance.now();
       const current = settings;
       const response = await fetch(current.deepseekEndpoint, {
         method: 'POST',
@@ -32,12 +33,25 @@ export function Options() {
         },
         body: JSON.stringify({
           model: current.deepseekModel,
-          messages: [{ role: 'user', content: 'Return exactly: ok' }],
-          max_tokens: 8,
+          messages: [
+            { role: 'system', content: '只返回合法 JSON。' },
+            { role: 'user', content: '返回 {"ok":true}，不要添加其他内容。' }
+          ],
+          max_tokens: 40,
+          thinking: { type: 'disabled' },
+          response_format: { type: 'json_object' },
           stream: false
         })
       });
-      setStatus(response.ok ? '连接成功' : `连接失败：${response.status}`);
+      const elapsed = ((performance.now() - startedAt) / 1000).toFixed(2);
+      if (!response.ok) {
+        setStatus(`连接失败：${response.status}`);
+        return;
+      }
+      const data = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
+      const content = data.choices?.[0]?.message?.content || '';
+      JSON.parse(content);
+      setStatus(`连接成功，用时 ${elapsed}s`);
     } catch (error) {
       setStatus(error instanceof Error ? error.message : String(error));
     }

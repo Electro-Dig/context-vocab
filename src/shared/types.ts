@@ -20,6 +20,7 @@ export interface AppSettings {
   showConfusingMeaning: boolean;
   prepareExtraInfo: boolean;
   cardDisplayVersion: number;
+  settingsVersion: number;
 }
 
 export interface WordEntry {

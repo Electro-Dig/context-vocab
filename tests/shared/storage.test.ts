@@ -27,6 +27,7 @@ describe('storage', () => {
     const settings = await getSettings();
     expect(settings.deepseekModel).toBe(DEFAULT_DEEPSEEK_MODEL);
     expect(settings.maxOutputTokens).toBe(240);
+    expect(settings.settingsVersion).toBe(3);
     expect(settings.autoSaveOnExplain).toBe(false);
     expect(settings.highlightEnabled).toBe(true);
     expect(settings.showCurrentExample).toBe(false);
@@ -56,6 +57,21 @@ describe('storage', () => {
     expect(settings.cardDisplayVersion).toBe(2);
     expect(storedSettings.showCurrentExample).toBe(false);
     expect(storedSettings.showFamiliarityControl).toBe(false);
+  });
+
+  it('migrates the old default token budget to the faster default', async () => {
+    await chrome.storage.local.set({
+      [STORAGE_KEYS.SETTINGS]: {
+        deepseekApiKey: 'existing-test-api-key',
+        maxOutputTokens: 360,
+        cardDisplayVersion: 2
+      }
+    });
+
+    const settings = await getSettings();
+
+    expect(settings.maxOutputTokens).toBe(240);
+    expect(settings.settingsVersion).toBe(3);
   });
 
   it('saves settings and word entries with word metadata', async () => {

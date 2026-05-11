@@ -46,6 +46,27 @@ describe('explainWithDeepSeek', () => {
     expect(result.passageTranslation).toBe('这个项目需要每个人长期投入。');
   });
 
+  it('times out stalled DeepSeek explanation requests', async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi.fn((_url: string, init?: RequestInit) => {
+      const signal = init?.signal as AbortSignal | undefined;
+      return new Promise<Response>((_resolve, reject) => {
+        signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+      });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const pending = explainWithDeepSeek(
+      { term: 'structure', sentence: 'They built logical structures.' },
+      { ...DEFAULT_SETTINGS, deepseekApiKey: 'test-api-key' }
+    );
+    const assertion = expect(pending).rejects.toThrow('DeepSeek request timed out');
+
+    await vi.advanceTimersByTimeAsync(12_000);
+    await assertion;
+    vi.useRealTimers();
+  });
+
   it('does not request word metadata or passage translation for phrase-only prompts', async () => {
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({
       choices: [{ message: { content: JSON.stringify({

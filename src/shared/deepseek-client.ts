@@ -26,6 +26,8 @@ interface DeepSeekResponse {
   choices?: Array<{ message?: { content?: string } }>;
 }
 
+const DEEPSEEK_REQUEST_TIMEOUT_MS = 12_000;
+
 function extractJsonObject(content: string): Record<string, unknown> {
   const match = content.trim().match(/\{[\s\S]*\}/);
   if (!match) throw new Error('DeepSeek response did not contain JSON');
@@ -39,25 +41,38 @@ function optionalString(value: unknown): string | undefined {
 export async function explainWithDeepSeek(input: ExplainInput, settings: AppSettings): Promise<ExplainResult> {
   if (!settings.deepseekApiKey.trim()) throw new Error('DeepSeek API key is not configured');
 
-  const response = await fetch(settings.deepseekEndpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${settings.deepseekApiKey}`
-    },
-    body: JSON.stringify({
-      model: settings.deepseekModel,
-      messages: [
-        { role: 'system', content: '你是专业、简洁的英语语境词义解释器。只返回合法 JSON。' },
-        { role: 'user', content: buildContextExplanationPrompt(input) }
-      ],
-      temperature: settings.temperature,
-      max_tokens: settings.maxOutputTokens,
-      thinking: { type: 'disabled' },
-      response_format: { type: 'json_object' },
-      stream: false
-    })
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), DEEPSEEK_REQUEST_TIMEOUT_MS);
+  let response: Response;
+  try {
+    response = await fetch(settings.deepseekEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${settings.deepseekApiKey}`
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
+        model: settings.deepseekModel,
+        messages: [
+          { role: 'system', content: '你是专业、简洁的英语语境词义解释器。只返回合法 JSON。' },
+          { role: 'user', content: buildContextExplanationPrompt(input) }
+        ],
+        temperature: settings.temperature,
+        max_tokens: settings.maxOutputTokens,
+        thinking: { type: 'disabled' },
+        response_format: { type: 'json_object' },
+        stream: false
+      })
+    });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new Error('DeepSeek request timed out after 12s');
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!response.ok) throw new Error(`DeepSeek request failed: ${response.status} ${await response.text()}`);
 

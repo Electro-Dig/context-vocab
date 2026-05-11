@@ -2,6 +2,7 @@ import { DEFAULT_DEEPSEEK_ENDPOINT, DEFAULT_DEEPSEEK_MODEL, STORAGE_KEYS } from 
 import type { AppSettings, Familiarity, PageMatchStats, WordEntry } from './types';
 
 const CURRENT_CARD_DISPLAY_VERSION = 2;
+const CURRENT_SETTINGS_VERSION = 3;
 
 export const DEFAULT_SETTINGS: AppSettings = {
   extensionEnabled: true,
@@ -22,7 +23,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   showFamiliarityControl: false,
   showConfusingMeaning: true,
   prepareExtraInfo: false,
-  cardDisplayVersion: CURRENT_CARD_DISPLAY_VERSION
+  cardDisplayVersion: CURRENT_CARD_DISPLAY_VERSION,
+  settingsVersion: CURRENT_SETTINGS_VERSION
 };
 
 async function getKey<T>(key: string, fallback: T): Promise<T> {
@@ -42,6 +44,14 @@ export async function getSettings(): Promise<AppSettings> {
     next.showCurrentExample = DEFAULT_SETTINGS.showCurrentExample;
     next.showFamiliarityControl = DEFAULT_SETTINGS.showFamiliarityControl;
     next.cardDisplayVersion = CURRENT_CARD_DISPLAY_VERSION;
+    await setKey(STORAGE_KEYS.SETTINGS, next);
+  }
+
+  if ((stored.settingsVersion ?? 0) < CURRENT_SETTINGS_VERSION) {
+    if (!stored.maxOutputTokens || stored.maxOutputTokens === 360) {
+      next.maxOutputTokens = DEFAULT_SETTINGS.maxOutputTokens;
+    }
+    next.settingsVersion = CURRENT_SETTINGS_VERSION;
     await setKey(STORAGE_KEYS.SETTINGS, next);
   }
 
